@@ -1,0 +1,140 @@
+<div class="app-shell">
+  <header class="header">
+    <div class="header__inner">
+      <div class="brand">
+        <div class="brand__dot" aria-hidden="true"></div>
+        <h1 class="brand__title">Simple Notes</h1>
+      </div>
+
+      <div class="header__actions">
+        <button type="button" class="btn btn--primary" (click)="createNew()">
+          New note
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="main">
+    <aside class="sidebar" aria-label="Notes list">
+      <div class="sidebar__header">
+        <div class="sidebar__title">Notes</div>
+        <button
+          type="button"
+          class="btn btn--ghost"
+          (click)="refreshList()"
+          aria-label="Refresh notes"
+        >
+          Refresh
+        </button>
+      </div>
+
+      @if (listState === 'loading') {
+        <div class="panel panel--muted">Loading notes…</div>
+      } @else if (listState === 'error') {
+        <div class="panel panel--error">
+          <div class="panel__title">Could not load notes</div>
+          <div class="panel__body">{{ listError }}</div>
+        </div>
+      } @else if (notes.length === 0) {
+        <div class="panel panel--muted">
+          No notes yet. Click <strong>New note</strong> to create one.
+        </div>
+      } @else {
+        <ul class="note-list" role="list">
+          @for (n of notes; track trackById($index, n)) {
+            <li>
+              <button
+                type="button"
+                class="note-list__item"
+                [class.note-list__item--active]="n.id === selectedId"
+                (click)="select(n.id)"
+              >
+                <span class="note-list__title">{{ n.title || 'Untitled' }}</span>
+              </button>
+            </li>
+          }
+        </ul>
+      }
+    </aside>
+
+    <section class="content" aria-label="Note editor">
+      @if (!selectedId) {
+        <div class="empty">
+          <div class="empty__card">
+            <div class="empty__title">Select a note</div>
+            <div class="empty__body">
+              Choose a note from the left, or create a new one.
+            </div>
+            <button type="button" class="btn btn--primary" (click)="createNew()">
+              Create your first note
+            </button>
+          </div>
+        </div>
+      } @else {
+        <div class="editor">
+          <div class="editor__bar">
+            <div class="status">
+              @if (detailState === 'loading') {
+                <span class="status__chip status__chip--muted">Saving…</span>
+              } @else if (isDirty) {
+                <span class="status__chip status__chip--warn">
+                  Unsaved changes
+                </span>
+              } @else {
+                <span class="status__chip status__chip--ok">Saved</span>
+              }
+            </div>
+
+            <div class="editor__actions">
+              <button
+                type="button"
+                class="btn btn--primary"
+                (click)="save()"
+                [disabled]="detailState === 'loading'"
+              >
+                Save
+              </button>
+              <button
+                type="button"
+                class="btn btn--danger"
+                (click)="deleteSelected()"
+                [disabled]="detailState === 'loading'"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+
+          @if (detailState === 'error') {
+            <div class="panel panel--error">
+              <div class="panel__title">Operation failed</div>
+              <div class="panel__body">{{ detailError }}</div>
+            </div>
+          }
+
+          <form class="form" (submit)="$event.preventDefault()">
+            <label class="field">
+              <span class="field__label">Title</span>
+              <input
+                class="input"
+                type="text"
+                placeholder="Untitled"
+                [formControl]="form.controls.title"
+                autocomplete="off"
+              />
+            </label>
+
+            <label class="field field--grow">
+              <span class="field__label">Content</span>
+              <textarea
+                class="textarea"
+                placeholder="Write something…"
+                [formControl]="form.controls.content"
+              ></textarea>
+            </label>
+          </form>
+        </div>
+      }
+    </section>
+  </main>
+</div>
