@@ -1,0 +1,4 @@
+{
+    "command": "npm start -- --port <port> --host <host>",
+    "working_directory": "/home/kavia/workspace/code-generation/simple-notes-app-196215-196224/notes_frontend"
+}
